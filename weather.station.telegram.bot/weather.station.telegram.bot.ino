@@ -1,3 +1,4 @@
+// weather.station.telegram.bot.ino
 #include <Wire.h>
 #include "Adafruit_BME280.h"
 
@@ -9,19 +10,21 @@
 #define I2C_SCL 22
 #define SEALEVELPRESSURE_HPA (1013.25)
 #define BME280_ADD 0x76
+#define TelegramApiToken "<telegram-api-token>"
+#define TelegramChatID "<chat-id>"
 
 // Initialize Wifi connection to the router
-char ssid[] = "";     // your network SSID (name)
-char password[] = ""; // your network key
-
-// Initialize Telegram BOT
-#define BOTtoken ""
+char ssid[] = "<network-name>";
+char password[] = "<network-key>";
 WiFiClientSecure client;
-UniversalTelegramBot bot(BOTtoken, client);
+
+// Initialize Telegram Bot
+UniversalTelegramBot bot(TelegramApiToken, client);
+
+// Initialize BMP280 sensor
+Adafruit_BME280 bme(I2C_SDA, I2C_SCL);
 
 void getValues(void);
-
-Adafruit_BME280 bme(I2C_SDA, I2C_SCL);
 
 void setup() {
   Serial.begin(115200);
@@ -45,7 +48,6 @@ void setup() {
     delay(500);
   }
 
-  Serial.println("");
   Serial.println("WiFi connected");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
@@ -61,17 +63,19 @@ void loop() {
 void getValues() {
 
   String info = "";
+  info.concat("Temperature: ");
   info.concat(bme.readTemperature());
-  //info.concat(" / ");
-  //info.concat("Approx. Altitude = ");
-//  info.concat(bme.readAltitude(SEALEVELPRESSURE_HPA));
-//  info.concat(" / ");
-//  info.concat("Pressure = ");
-//  info.concat(bme.readPressure() / 100.0F);
   info.concat(" / ");
-//  info.concat("Humidity = ");
+  info.concat("Approx. Altitude: ");
+  info.concat(bme.readAltitude(SEALEVELPRESSURE_HPA));
+  info.concat(" / ");
+  info.concat("Pressure: ");
+  info.concat(bme.readPressure() / 100.0F);
+  info.concat(" / ");
+  info.concat("Humidity: ");
   info.concat(bme.readHumidity());
-  bot.sendMessage("-306748054", info, "");
+
+  bot.sendMessage(TelegramChatID, info, "");
 
   delay(1000*60*15);
   Serial.println(info);
