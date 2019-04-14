@@ -77,6 +77,6 @@ void getValues() {
 
   bot.sendMessage(TelegramChatID, info, "");
 
-  delay(1000*60*15);
   Serial.println(info);
+  delay(1000*60*15); // 15 minutes
 }
